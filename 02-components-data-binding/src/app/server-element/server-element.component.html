@@ -1,0 +1,13 @@
+<div
+    class="panel panel-default">
+    <div class="panel-heading">{{ element.name }}</div>
+    <div class="panel-body">
+        <p>
+        <strong *ngIf="element.type === 'server'" style="color: red">{{ element.content }}</strong>
+        <!-- Its not blue colored because its only defined in the app.component.css -->
+        <!-- Can be manipulated with encapsulation: ViewEncapsulation.None -->
+        <em *ngIf="element.type === 'blueprint'">{{ element.content }}</em>
+        </p>
+        <!-- <ng-content></ng-content> -->
+    </div>
+</div>

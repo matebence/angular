@@ -30,7 +30,7 @@ Create a new app
 
 Start the dev server
 
-    ng server
+    ng serve
 
 Create componenet (or we do it manually)
 
@@ -47,8 +47,14 @@ Adding bootstrap to Angular project
 
 - The server at the end servs our `index.html` and `app.js`
 - `AppComponenet.ts` - it holds  the app-root selector. Which is our root
-- main.ts - itt start our `AppModule`
-- This is the root module which again usses the `AppComponenet.ts` 
+- main.ts - it start our `AppModule`
+- This is the root module which again uses the `AppComponenet.ts` 
+
+**Debugging**
+
+- We open dev tools -> JS console
+- We open dev tools -> Sources -> webpack/./src/app
+- We install Augury Google Chrome Extension
 
 **Component definition**
 
@@ -88,3 +94,14 @@ Combination of Both
 - ngStyle
 - ngClass
 - ngFor
+
+**Component lifecycles**
+
+- ngOnChanges = Called after a bound @Input property changes
+- NgOnInit = Called once the component initialized. It runs after constructor
+- ngDoCheck = Called during every change detection run
+- ngAfterContentInit = Called after content (ng-content) has been projected into view
+- ngAfterContentChecked = Called every time the projected content has been checked
+- ngAfterViewInit = Called after the components view has been initialized
+- ngAfterViewChecked = Called every time the view have been checked
+- ngOnDestroy = Called once the compoenet is about to be destroyed
