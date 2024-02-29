@@ -35,6 +35,7 @@ Start the dev server
 Create componenet (or we do it manually)
 
     ng generate component component-name
+    ng generate directive directive-name
 
 From Angular v17 onwards, Standalone is now the new default for the CLI. So when you create a new project, you won't have any modules in it if you don't specify anything. However, it is still possible to create a module-based app by using the --no-standalone flag : **ng new --no-standalone**
 
@@ -89,11 +90,21 @@ Combination of Both
 
 **Directives**
 
+Attribute directives:
+- Look like a normal HTML attribute
+- Only affect / change the element they are added to
+
+Structural directives:
+- Look like normal HTML Attribute but have a leading *
+- Affect a whole area in the DOM (elements get added / removed)
+
+Namely they are:
 - ngModel
 - ngIf;else
 - ngStyle
 - ngClass
 - ngFor
+- ngSwitch
 
 **Component lifecycles**
 

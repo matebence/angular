@@ -1,0 +1,50 @@
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12">
+      <button
+        class="btn btn-primary"
+        (click)="onlyOdd = !onlyOdd">Only show odd numbers</button>
+      <br><br>
+      <!--
+        <ul class="list-group">
+          We cannot have multiple structural directives on a single tag *ngIf="number % 2 == 0" 
+          <li
+            class="list-group-item"
+            *ngFor="let number of numbers"
+            >{{ number }}</li>
+        </ul>
+      -->
+
+      <div *ngIf="onlyOdd">
+        <ul class="list-group">
+          <li
+            class="list-group-item"
+            *ngFor="let number of ods"
+            [ngClass]="{odd: number % 2 !== 0}"
+            [ngStyle]="{fontWeight: number % 2 !== 0 ? 'bold' : 'normal'}"
+            >{{ number }}</li>
+        </ul>
+      </div>
+      
+      <div *appUnless="onlyOdd">
+        <ul class="list-group">
+          <li
+            class="list-group-item"
+            [ngClass]="{even: number % 2 === 0}"
+            [ngStyle]="{fontWeight: number % 2 !== 0 ? 'bold' : 'normal'}"
+            *ngFor="let number of evens"
+            >{{ number }}</li>
+        </ul>
+      </div>
+    </div>
+    <p appBasicHighlight> Style me</p>
+    <p appBetterHighlight [defaultColor]="'red'" [hihglightColor]="'green'">Style me better</p>
+    
+    <div [ngSwitch]="value">
+      <p *ngSwitchCase="5">Value is 5</p>
+      <p *ngSwitchCase="10">Value is 10</p>
+      <p *ngSwitchCase="100">Value is 100</p>
+      <p *ngSwitchDefault>This is the default value</p>
+    </div>
+  </div>
+</div>
