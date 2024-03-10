@@ -36,6 +36,7 @@ Create componenet (or we do it manually)
 
     ng generate component component-name
     ng generate directive directive-name
+    ng generate service service-name
 
 From Angular v17 onwards, Standalone is now the new default for the CLI. So when you create a new project, you won't have any modules in it if you don't specify anything. However, it is still possible to create a module-based app by using the --no-standalone flag : **ng new --no-standalone**
 
@@ -116,3 +117,10 @@ Namely they are:
 - ngAfterViewInit = Called after the components view has been initialized
 - ngAfterViewChecked = Called every time the view have been checked
 - ngOnDestroy = Called once the compoenet is about to be destroyed
+
+**Angular Dependency injection**
+
+It provides the same instance for all its childs, because of this is important where we define our Service:
+- AppModule - same instance of Service is available application-wide
+- AppComponent - Same instance of service is available for all Componeneet (but not for other service)
+- Any other component - Same instance of servie is available for the component and all its child components
