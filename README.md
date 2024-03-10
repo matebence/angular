@@ -124,3 +124,7 @@ It provides the same instance for all its childs, because of this is important w
 - AppModule - same instance of Service is available application-wide
 - AppComponent - Same instance of service is available for all Componeneet (but not for other service)
 - Any other component - Same instance of servie is available for the component and all its child components
+
+**Routes**
+
+If we are going to deploy the app on the server, its important to configure the server a way where we always get back the index.html

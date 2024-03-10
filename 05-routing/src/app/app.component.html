@@ -1,0 +1,24 @@
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
+      <ul class="nav nav-tabs">
+        <!-- We cant use a href because that would reload the whole app -->
+        <!-- Slash meanns absoluth path, without slash its relative and it would just append to the existing url -->
+        <!-- We can also use ./users ../users like in file structure system -->
+        <!-- Because slash is part of every url we have to add the routerLinkActiveOptions attribute
+          -->
+        <li role="presentation" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"><a routerLink="/">Home</a></li>
+        <li role="presentation" routerLinkActive="active"><a routerLink="/servers">Servers</a></li>
+        <!-- Array definition of the routes. There could be more one elements like users-books-id -->
+        <li role="presentation" routerLinkActive="active"><a [routerLink]="['/users']">Users</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
+      <!-- <app-home></app-home> -->
+      <!-- We dont define here our component but the holder where the list of componenet via router should be loaded -->
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>
