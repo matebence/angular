@@ -19,7 +19,10 @@ Check versions
 Install Angular
 
     npm install -g @angular/cli@latest
-
+    npm remove -g @angular/cli@latest
+    npm ls
+    npm ls -g
+    
 If checked out project then first
 
     npm install
@@ -44,19 +47,497 @@ Adding bootstrap to Angular project
 
     npm install --save bootstrap
     angular.json -> "node_modules/bootstrap/dist/css/bootstrap.min.css"
+    Order of the *.css definitions are important because of the css rule `Last always win`
+
+```json
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "00-standalone": {
+      "projectType": "application",
+      "schematics": {},
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:application",
+          "options": {
+            "outputPath": "dist/00-standalone",
+            "index": "src/index.html",
+            "browser": "src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "tsconfig.app.json",
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ],
+            "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "src/styles.css"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "00-standalone:build:production"
+            },
+            "development": {
+              "buildTarget": "00-standalone:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "buildTarget": "00-standalone:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "tsConfig": "tsconfig.spec.json",
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ],
+            "styles": [
+              "src/styles.css"
+            ],
+            "scripts": []
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "analytics": false
+  }
+}
+```
+
+***Property '...' has no initializer and is not definitely assigned in the constructo**
+
+```json
+"compilerOptions": {
+    "strictPropertyInitialization": false,
+    ...
+}
+```
 
 **The basics**
 
-- The server at the end servs our `index.html` and `app.js`
+- The server at the end servs our `index.html` and `app.js` (This app.js injection is done by the CLI)
 - `AppComponenet.ts` - it holds  the app-root selector. Which is our root
 - main.ts - it start our `AppModule`
 - This is the root module which again uses the `AppComponenet.ts` 
 
+**TypeScript**
+
+TypeScript (More features than vanilla JS) -> Compiled to -> JavaScript
+
+```ts
+// Duck typing
+var animal = {          
+    name: "Fido",
+    species: "Dog",
+    age: 5,
+    speak: function() { 
+        console.log('Woof!');
+    }
+}
+
+// Type inference
+function totalLength(x, y) {
+    var total = x.length + y.lengt;
+    return total;
+}
+
+// Specifying types     
+function totalLength(x: any[], y: string): number {
+    var total: number = x.length + y.length;
+    return total;
+}
+
+// Using union type we ccan specify more types for one variable
+function totalLength(x: (string | any[]), y: (string | any[])): number {
+    var total: number = x.length + y.length;
+    
+    x.slice(0)
+    
+    if(x instanceof Array) {
+        x.push('TypeScript')
+    }
+    
+    if(x instanceof String) {
+        x.substr(0)
+    }
+    
+    return total;
+}
+
+ // Function overloads
+function totalLength(x: string, y: string): number
+function totalLength(x: any[], y: any[]): number
+function totalLength(x: (string | any[]), y: (string | any[])): number {
+    var total: number = x.length + y.length;
+    
+    x.slice(0)
+    
+    if(x instanceof Array) {
+        x.push('TypeScript')
+    }
+    
+    if(x instanceof String) {
+        x.substr(0)
+    }
+    
+    return total;
+}
+
+// Custom Types
+
+interface Todo {
+    name: string;
+    completed?: boolean; // this is optional
+}
+
+interface ITodoService {
+    add(todo: Todo): Todo;
+    delete(todo: Todo): void;
+    getAll(): Todo[];
+    getById(todoId: number): Todo;
+}
+
+
+// Using interfaces to describe functions   
+
+interface jQuery {
+    (selector: string): HTMLElement; // Anonymous function
+    version: number;
+}
+
+
+var $ = <jQuery>function(selector: string) {
+    // Find DOM element
+}
+
+$.version = 1.18
+
+var container = $('#container'); //Anonymous function use here
+
+// Using classes and static keyword
+
+class TodoService {
+    static lastId: number = 0;
+
+    constructor(private todos: Todo[]) {
+    }
+
+    add(todo: Todo) {
+        var newId = TodoService.getNextId();
+    }
+
+    getAll() {
+        return this.todos;
+    }
+
+    static getNextId() {
+        return TodoService.lastId += 1;
+    }
+}
+
+interface Todo {
+    name: string;
+    state: TodoState;
+}
+
+enum TodoState {
+    New = 1,
+    Active,
+    Complete,
+    Deleted
+}
+
+var todo = {
+    name: "Pick up drycleaning",
+    state: TodoState.Complete
+}
+
+// Accessors get and set
+
+class SmartTodo {
+
+    _state: TodoState;
+    
+    name: string;
+    
+    get state() {
+        return this._state;
+    }
+    
+    set state(newState) {
+        
+        if(newState == TodoState.Complete) {
+            
+            var canBeCompleted = 
+                this.state == TodoState.Active
+                || this.state == TodoState.Deleted;
+                
+            if(!canBeCompleted) {
+                throw "Todo must be Active or Deleted in order to be marked Completed"
+            }
+        }
+        
+        this._state = newState;
+    }
+    
+    constructor(name: string) {
+        this.name = name;
+    }
+}
+
+// Inheriting behavior
+
+interface Todo {
+    name: string;
+    state: TodoState;
+}
+
+enum TodoState {
+    New = 1,
+    Active,
+    Complete,
+    Deleted
+}
+
+class TodoStateChanger {
+    
+    constructor(private newState: TodoState) {
+    }
+    
+    canChangeState(todo: Todo): boolean {
+        return !!todo;
+    }
+    
+    changeState(todo: Todo): Todo {
+        if(this.canChangeState(todo)) {
+            todo.state = this.newState;
+        }
+        
+        return todo;
+    }
+    
+}
+
+class CompleteTodoStateChanger extends TodoStateChanger {
+
+    constructor() {
+        super(TodoState.Complete);
+    }
+    
+    canChangeState(todo: Todo): boolean {
+        return super.canChangeState(todo) && (
+                todo.state == TodoState.Active
+            || todo.state == TodoState.Deleted
+        )
+    }
+}
+
+// Abstract class
+
+interface Todo {
+    name: string;
+    state: TodoState;
+}
+
+enum TodoState {
+    New = 1,
+    Active,
+    Complete,
+    Deleted
+}
+
+abstract class TodoStateChanger {
+    
+    constructor(private newState: TodoState) {
+    }
+    
+    abstract canChangeState(todo: Todo): boolean;
+    
+    changeState(todo: Todo): Todo {
+        if(this.canChangeState(todo)) {
+            todo.state = this.newState;
+        }
+        
+        return todo;
+    }
+    
+}
+
+class CompleteTodoStateChanger extends TodoStateChanger {
+
+    constructor() {
+        super(TodoState.Complete);
+    }
+    
+    canChangeState(todo: Todo): boolean {
+        return !!todo && (
+                todo.state == TodoState.Active
+            || todo.state == TodoState.Deleted
+        )
+    }
+    
+}
+
+// Visibility with access modifiers
+
+interface Todo {
+    name: string;
+    state: TodoState;
+}
+
+enum TodoState {
+    New = 1,
+    Active,
+    Complete,
+    Deleted
+}
+
+
+class TodoService {
+
+    private static _lastId: number = 0;
+
+    private get nextId() {
+        return TodoService.getNextId();
+    }
+
+    private set nextId(nextId) {
+        TodoService._lastId = nextId - 1;
+    }
+
+    constructor(private todos: Todo[]) {
+    }
+
+    add(todo: Todo) {
+        var newId = this.nextId;
+    }
+
+    private getAll() {
+        return this.todos;
+    }
+
+    static getNextId() {
+        return TodoService.lastId += 1;
+    }
+}
+
+
+abstract class TodoStateChanger {
+
+    constructor(protected newState: TodoState) {
+    }
+
+    abstract canChangeState(todo: Todo): boolean;
+
+    changeState(todo: Todo): Todo {
+        if (this.canChangeState(todo)) {
+            todo.state = this.newState;
+        }
+
+        return todo;
+    }
+
+}
+
+class CompleteTodoStateChanger extends TodoStateChanger {
+
+    constructor() {
+        super(TodoState.Complete);
+    }
+
+    canChangeState(todo: Todo): boolean {
+        return !!todo && (
+            todo.state == TodoState.Active
+            || todo.state == TodoState.Deleted
+        )
+    }
+
+}
+
+class SmartTodo {
+    constructor(public name: string) {
+    }
+}
+
+// Implementing interfaces
+class TodoService implements ITodoServer {
+}
+
+// Using generics
+
+function clone<T>(value: T): T {
+    let serialized = JSON.stringify(value);
+    return JSON.parse(serialized);
+}
+
+class KeyValuePair<TKey, TValue> {
+    
+    constructor(
+        public key: TKey,
+        public value: TValue
+    ) {
+    }
+    
+}
+
+let pair1 = new KeyValuePair<number, string>(1, 'First');
+let pair2 = new KeyValuePair<string, Date>('Second', new Date(Date.now()));
+let pair3 = new KeyValuePair<number, string>(3, 'Third');
+```
+
 **Debugging**
 
 - We open dev tools -> JS console
-- We open dev tools -> Sources -> webpack/./src/app
+- We open dev tools -> Sources -> webpack/./src/app (with help of source maps we can debug in *.ts)
 - We install Augury Google Chrome Extension
+    - Shows Injector Graph, Router tree, Properties, Modules
 
 **Component definition**
 
@@ -81,13 +562,18 @@ export class ServerComponent {
 
 Output data
 - String Interpolation `{{ data }}`
-- Property Binding `[property] = "data"`
+- Example:  `{{ status }}`
+- Property Binding `[property] = "data"` 
+- Example:  `[src] = "response.data.img"`
+- We can also bind to our custom properties so we can send data from one component to another one
 
 React to User event (input)
 - Event binding `(event) = "expression"`
+- Example:  `(input) = "process($event)"`
 
 Combination of Both
 - Two way binding `[(ngModel)="data"]`
+- Example:  `[(ngModel)="formData"]"`
 
 **Directives**
 
@@ -118,13 +604,167 @@ Namely they are:
 - ngAfterViewChecked = Called every time the view have been checked
 - ngOnDestroy = Called once the compoenet is about to be destroyed
 
+**Calling order, if we load our app**
+
+ngOnChange - Called multiple times
+ngOnInit - Called once
+ngDoCheck - Called multiple times
+ngAfterContentCheckek - Called multiple times
+ngAfterViewInit - Called once
+ngAfterViewChecked - Called multiple times
+ngAfterContentInit - Called once
+ngOnDestroy - Called once
+
 **Angular Dependency injection**
 
 It provides the same instance for all its childs, because of this is important where we define our Service:
 - AppModule - same instance of Service is available application-wide
-- AppComponent - Same instance of service is available for all Componeneet (but not for other service)
+- AppComponent - Same instance of service is available for all Components (but not for other service)
 - Any other component - Same instance of servie is available for the component and all its child components
+
+**Angular Services**
+
+- @Injectable() - if a service needs to inject another services, then we have to add this annotation.
+- In services is always a good aproach to return the copy of the data via .slice() and later notify to other component with Observable
 
 **Routes**
 
-If we are going to deploy the app on the server, its important to configure the server a way where we always get back the index.html
+If we are going to deploy the app on the server, its important to configure the server a way where we always get back the index.html. If this is not possible we can use the hashtag technic.
+```ts
+RouterModule.forRoot(appRoutes, {useHash: true})
+```
+
+We have to following options for routes in Angular (it can be used in ts and html too):
+
+- params
+- queryParams
+- fragments
+
+HTML syntax sugar:
+- `routerLinkActive="active"`
+- `routerLink="/"`
+- `[routerLink]="['/users']"`
+- `[routerLinkActiveOptions]="{exact: true}"`
+
+HTML tags:
+- `<router-outlet></router-outlet>`
+
+We are injecting following objects:
+- route: ActivatedRoute
+- router: Router
+
+Examples:
+```ts
+ngOnInit() {
+    this.paramsSubscription = this.route.params.subscribe((params: Params) => {
+        this.server = this.serversService.getServer(+params['id'])!;
+        this.serverName = this.server.name;
+        this.serverStatus = this.server.status;
+    });
+
+    this.querySubscription = this.route.queryParams.subscribe(
+        (queryParams: Params) => {
+        this.allowEdit = queryParams['allowEdit']=== '1' ? true : false
+        }
+    )
+}
+
+// Using relative to query params and fragments
+this.router.navigate(['/servers', id, 'edit'], {relativeTo: this.route, queryParams: {allowEdit: 1}, fragment: 'loading'})
+
+// With preserve the query params will be pass to the next route (options one preserve or merge)
+this.router.navigate(['edit'], {relativeTo: this.route, queryParamsHandling: 'preserve'});
+
+// Using Deactivate Guards
+export interface CanComponentDeacivate {
+    canDeactivate: () => Observable<boolean> | Promise<boolean> | boolean;
+}
+
+export const CanDeactivateGuard: CanDeactivateFn<CanComponentDeacivate> = (component: CanComponentDeacivate, currentRoute: ActivatedRouteSnapshot, currentState: RouterStateSnapshot, nextState: RouterStateSnapshot) : Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree => {
+    return component.canDeactivate();
+}
+
+// Using Auth Guards
+export const AuthGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree => {
+    const router: Router = inject(Router);
+    const userRole: String = inject(AuthService).getUserRole();
+
+    const expectedRoles: String[] = ["USER"]
+    const hasRole: boolean = expectedRoles.some((role) => userRole === role);
+  
+    return hasRole || router.navigate(['/']);
+}
+
+export const AuthGuardChild: CanActivateChildFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree => {
+    return AuthGuard(route, state);
+}
+
+// Using Resolve Guard - for static data which just define it the router, see in the project
+interface Server {
+    id: number,
+    name: string,
+    status: string
+}
+
+export const ServerResolver: ResolveFn<Server> = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Server> | Promise<Server> | Server => {
+    const serverService: ServersService = inject(ServersService);
+
+    return serverService.getServer(+route.params['id'])
+}
+
+// Using pathMatch for empty strings
+const appRoutes: Routes = [
+  {path: '', redirectTo: '/users', pathMatch: 'full'}, // '' empty string is contained by every path, so we have to add pathMatch
+  {path: 'users', component: UsersComponent, children: [{path: ':id/:name', component: UserComponent} ]}
+]
+```
+
+**Observable**
+
+- various Data Srouces - Events Http Request, Triggered in Code
+
+Explenation:
+
+- Observer - An Observer is an object that knows how to handle values, errors, or when the observable completes. It's basically your reaction to the data coming from the observable.
+- Observable - An Observable is like a stream of data that can emit values over time. You can think of it like a Netflix subscription: it can keep sending you movies (data) as long as you’re subscribed.
+- Subscription - A Subscription represents the connection between the observable and the observer. It lets you start and stop receiving data.
+- Subject - A Subject is both an Observable and an Observer. It can emit data to its subscribers, and you can also push values into it.
+
+**Observe**
+
+You write the code which gets executed:
+- handle data
+- handle error
+- Handle Completion
+
+Async task (its like Promises)
+
+**Angular 6 and RxJs6**
+
+support old import syntax:
+```
+npm install --save rxjs-compat
+```
+
+**List of RxJs Operators**
+
+https://rxjs.dev/guide/operators
+
+
+**Using Angular Forms**
+
+In angular the form is mapped to JSON object with metadata. There are special parameters which we have to set. 
+
+
+We have two approaches:
+- Template driven - Angular infers the Form Object from the DOM
+- Reactive - form is created programatically and synchroznied with the DOM
+
+**NgForm Explained**
+
+- The values are stored: ngForm.form.value
+- The form was changed after submit - ngForm.dirty
+- The form was disabled - ngForm.disabled
+- The form is valid based on the validators - ngForm.invalid
+- The form was already at least once touched - ngForm.touched
+

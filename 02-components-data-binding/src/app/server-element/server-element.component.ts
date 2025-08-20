@@ -3,11 +3,12 @@ import { AfterContentChecked, AfterContentInit, AfterViewChecked, AfterViewInit,
 @Component({
   selector: 'app-server-element',
   templateUrl: './server-element.component.html',
-  styleUrl: './server-element.component.css',
+  styleUrl: './server-element.component.css', // these styles are only applied for this component
   encapsulation: ViewEncapsulation.None // the css styles defined for this component will be used globally
 })
 export class ServerElementComponent implements OnInit, OnChanges, DoCheck, AfterContentInit, AfterContentChecked, AfterViewInit, AfterViewChecked, OnDestroy {
   // Property binding like [disabled] = true
+  // @Input('srvElement')
   @Input() element: {type: string, name: string, content: string};
 
   constructor() {
@@ -18,7 +19,7 @@ export class ServerElementComponent implements OnInit, OnChanges, DoCheck, After
     console.log('OnInit called');
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges): void { // the attribute contains the new and old value
     console.log(changes); // we will se here our bounded property 'element'
     console.log('OnChanges called');
   }

@@ -33,7 +33,7 @@ const appRoutes: Routes = [
        canDeactivate: [CanDeactivateGuard]}
   ]},
   { path: 'error', component: ErrorPageComponent, 
-    data: {message: 'This is the error message'}},
+    data: {message: 'This is the error message'}}, // static messeage which we can pass
     { path: 'not-found', component: PageNotFoundComponent},
     { path: 'something', redirectTo: '/not-found'},
 
@@ -45,6 +45,6 @@ const appRoutes: Routes = [
   imports: [
     RouterModule.forRoot(appRoutes)
   ],
-  exports: [RouterModule]
+  exports: [RouterModule] // What shoud be accesible, if someone imports this module
 })
 export class AppRoutingModule { }

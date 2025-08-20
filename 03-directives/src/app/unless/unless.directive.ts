@@ -7,6 +7,7 @@ export class UnlessDirective {
 
   // Its a setter method for the unless attribute
   // It gets called always the value changes - like in JSF
+  // It must be the same name like selector: '[appUnless]'
   @Input() set appUnless(value: boolean) {
     if (!value) {
       this.vcRef.createEmbeddedView(this.templateRef);

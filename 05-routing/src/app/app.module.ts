@@ -20,14 +20,15 @@ import { ErrorPageComponent } from './error-page/error-page.component';
 // const appRoutes: Routes = [
 //   {path: '', component: HomeComponent},
 //   {path: 'users', component: UsersComponent},
-//   {path: 'user/:id/:name', component: UserComponent},
+//   {path: 'users/:id/:name', component: UserComponent},
 //   {path: 'servers', component: ServersComponent},
-//   {path: 'server/:id', component: ServerComponent},
+//   {path: 'servers/:id', component: ServerComponent},
 //   {path: 'servers/:id/edit', component: EditServerComponent},
 // ]
 
 // Using children and nested Routes
 // This part should be placed in its own class
+// For the child routes we have to define another <router-outlet></router-outlet>
 
 // const appRoutes: Routes = [
 //   {path: '', component: HomeComponent},

@@ -8,6 +8,7 @@ export class BetterHighlightDirective implements OnInit {
     @Input() defaultColor: string = 'transparent';
     @Input() hihglightColor: string = 'blue';
 
+    // This here replaces the renderer useage in the constructor
     @HostBinding('style.backgroundColor') backgroundColor: string | undefined;
 
     constructor(private elRef: ElementRef, private renderer: Renderer2) {

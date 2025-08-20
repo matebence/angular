@@ -17,7 +17,7 @@ export class ServersComponent implements OnInit {
   }
 
   onReload(id: number): void {
-    // Without relativeTo the 'servers' woudnt be appended work
+    // Without relativeTo the 'servers' woudnt be appende
     // this.router.navigate(['servers'], {relativeTo: this.route});
     this.router.navigate(['/servers', id, 'edit'], {queryParams: {allowEdit: 1}, fragment: 'loading'})
   }
