@@ -768,3 +768,57 @@ We have two approaches:
 - The form is valid based on the validators - ngForm.invalid
 - The form was already at least once touched - ngForm.touched
 
+**Pipes**
+
+Used for transforming strings in the html template. Build in pipes are:
+- uppercase
+- date
+- async
+
+The pipes are applied from right to left
+string <- date <- uppercase
+
+https://angular.dev/guide/templates/pipes
+
+**Creating custom pipes**
+
+```ts
+import { Pipe, PipeTransform } from "@angular/core";
+
+@Pipe({name:'shorten', pure: false}) // pure means that our pipe reruns on data change - can be performance issue
+export class ShortenPipe implements PipeTransform {
+    transform(value: any, ...args: any[]) {
+        if (value.length > args) {
+            return value.substr(0, args).concat("...");
+        }
+        return value;
+    }
+}
+```
+
+**Creating HTTP request**
+
+- As angular is SPA framework. We have to somehow communication with a backend for that we use HttpClientModule its like Axios.
+
+```ts
+import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { catchError, map, Observable, throwError } from "rxjs";
+
+@Injectable()
+export class ServerService {
+    constructor(private http: HttpClient) { }
+
+    getUserAgent(): Observable<string> {
+        return this.http.get<{ ip: string; userAgent: string }>('https://dummyjson.com/ip').pipe(
+            map((data) => {
+                return data.userAgent;
+            }),
+            catchError((error) => {
+                console.error('Error fetching IP:', error);
+                return throwError(() => new Error('Failed to fetch IP data.'));
+            })
+        );
+    }
+}
+```
