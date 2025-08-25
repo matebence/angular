@@ -822,3 +822,249 @@ export class ServerService {
     }
 }
 ```
+
+**Authentication**
+
+How does Authentication work?
+- Send Auth information -> We dont use sessions here
+- We use instead of session a so called JWT
+- This JWT is send via every request to our backend
+
+**Using Modules**
+
+A Module consistence of:
+- Component
+- Component
+- Directive
+
+Do we need all the component every time? Or we can separate them? As Example we will use a Book Author example.
+
+```ts
+ @NgModule({
+  declarations: [                               // Whichs Components, Pipes and Directives are used by a module
+    AppComponent,
+    HomeComponent,
+    UsersComponent,
+    ServersComponent,
+    UserComponent,
+    EditServerComponent,
+    ServerComponent,
+    PageNotFoundComponent,
+    ErrorPageComponent
+  ],
+  imports: [                                  // What other modules use this modul
+    BrowserModule,                            // We import here everthing what this module exports for us
+    FormsModule,
+    AppRoutingModule 
+  ],
+  exports: [],                               // We import here everthing what this module exports for us
+  providers: [ServersService, AuthService],  // Which Services we use in our module
+  bootstrap: [AppComponent]                 // What is our root component
+})
+export class AppModule { }
+```
+
+**Example for modules**
+
+app.routing.module.ts
+```ts
+const appRoutes: Routes = [
+  { path: '', component: HomeComponent },
+  // defining as a lazdy module, it will be loaded only if visit the route
+  { path: 'author', loadChildren: './authors/author.module#AuthorsModule' }
+];
+
+@NgModule({ //Preload lazy moduless
+  imports: [RouterModule.forRoot(appRoutes, {preloadingStrategy: PreloadAllModules})],
+  exports: [RouterModule]
+})
+export class AppRoutingModule {
+}
+```
+
+```ts
+ @NgModule({
+  declarations: [                              
+    AppComponent
+  ],
+  imports: [                                  
+    BrowserModule,                            
+    HttpClientModule,
+    AppRoutingModule,
+    BooksModule,
+    SharedModule,
+    AuthModule,
+    CoreModule
+  ],
+  // Never use services in a lazy module !!! Use it in the App or Eager Module !!!
+  providers: [], 
+  bootstrap: [AppComponent]                
+})
+export class AppModule { }
+```
+
+authors.routing.module.ts
+```ts
+const authorsRoutes: Routes = [
+    // we defined here as '', because we already have it defined as lazy 'author'
+	{ path: '', component: AuthorComponent, children: [
+    	{ path: '', component: AuthorsStartComponent },
+    	{ path: 'new', component: AuthorsEditComponent, canActivate: [AuthGuard] },
+    	{ path: ':id', component: AuthorsDetailComponent },
+    	{ path: ':id/edit', component: AuthorsEditComponent, canActivate: [AuthGuard] },
+  ] },
+]
+
+@NgModule({
+	imports; [
+        // here we call forChild and not forRoot
+		RouterModule.forChild(authorsRoutes) 
+	],
+	exports: [RouterModule]
+})
+export class AuthorsRoutingModule {
+}
+```
+
+authors.module.ts
+```ts
+ @NgModule({
+  declarations: [                             
+    AuthorsComponent,
+    AuthorsStartComponent,
+    AuthorsListComponent,
+    AuthorsEditComponent,
+    AuthorsDetailComponent,
+    AuthorsItemComponent
+  ],
+  imports: [           
+    CommonModule,                      
+    ReactiveFormsModule,
+    AuthorsRoutingModule,
+    SharedModule
+  ]        
+})
+export class AuthorsModule { }
+```
+
+books.routing.module.ts
+```ts
+const booksRoutes: Routes = [
+	{ path: 'list-of-books', component: AuthorComponent}
+  ] },
+]
+
+@NgModule({
+	imports; [
+        // here we call forChild and not forRoot
+		RouterModule.forChild(booksRoutes) 
+	],
+	exports: [RouterModule]
+})
+export class BooksRoutingModule {
+}
+```
+
+books.module.ts
+```ts
+ @NgModule({
+  declarations: [                             
+    ListOfBookComponent,
+    BookEditComponent
+  ],
+  imports: [           
+    CommonModule,                      
+    FormsModule,
+    BooksRoutingModule
+  ]        
+})
+export class BooksModule { }
+```
+
+auth.routing.module.ts
+```ts
+const authRoutes: Routes = [
+	{path: 'signup', component: SignupComponent},
+    {path: 'signin', component: SigninComponent}
+];
+
+@NgModule({
+	imports; [
+        // here we call forChild and not forRoot
+		RouterModule.forChild(authRoutes) 
+	],
+	exports: [RouterModule]
+})
+export class AuthRoutingModule {
+}
+```
+
+auth.module.ts
+```ts
+ @NgModule({
+  declarations: [                             
+    SignupComponent,
+    SigninComponent
+  ],
+  imports: [           
+    CommonModule,                      
+    FormsModule,
+    AuthRoutingModule
+  ]        
+})
+export class AuthModule { }
+```
+
+shared.module.ts
+```ts
+ @NgModule({
+  declarations: [                             
+    DropDownDirective
+  ],
+  exports: [
+    CommonModule,           
+    DropDownDirective
+  ]        
+})
+export class SharedModule { }
+```
+
+core.module.ts
+```ts
+ @NgModule({
+  declarations: [                             
+    HomeComponent,
+    HeaderComponent
+  ],
+  imports: [           
+    SharedModule,
+    AppRoutingModule // We use it in the header component -> the routing defnitions
+  ],
+  exports: [
+    AppRoutingModule, 
+    HeaderComponent
+  ],
+  providers: [
+    AuthorsService,
+    DataStorageService,
+    AuthService,
+    AuthGuard
+  ]        
+})
+export class CoreModule { }
+```
+
+
+**Deploying an Angular app**
+
+- First we have to build our app for production
+- Set the correct <base> element
+    - For exmaple.com/my-app you should have <base href="/my-app">
+- Make sure your servesr always returns index.html
+
+
+AOT is a feature of Angular where the Angular HTML templates and TypeScript code are compiled into efficient JavaScript code during the build process, before the browser downloads and runs the code. (--aot)
+
+```sh
+ng build --prod --aot
+```
