@@ -3,9 +3,9 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { ServerService } from './server.service';
-import { AuthInterceptor } from './auth.interceptor';
+import { StoreModule } from '@ngrx/store';
+import { authorReducer } from './author/author.reducer';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -14,9 +14,10 @@ import { AuthInterceptor } from './auth.interceptor';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule // its required for making http calls
+    FormsModule,
+    StoreModule.forRoot({ authors: authorReducer }) 
   ],
-  providers: [ServerService, {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { catchError, map, Observable, throwError } from "rxjs";
 
@@ -9,6 +9,21 @@ export class ServerService {
     storeServers(servers: any[]) {
         const headers = new HttpHeaders({ 'Content-Type': 'application/json' })
         return this.http.post('https://dummyjson.com/test', servers, { headers });
+    }
+
+    storeServersAsText(servers: any[]) {
+        // With this config we are able to get back not only the reponse body byt status code headers and so on
+        // Setting response type
+        // return this.http.post('https://dummyjson.com/test', servers, { 'observe': 'body', 'responseType': 'json' });
+        // Changing default observe from body to response
+        // return this.http.post('https://dummyjson.com/test', servers, { 'observe': 'response', 'responseType': 'text' });
+        // Set Http Parameters
+        // return this.http.post('https://dummyjson.com/test', servers, { 'observe': 'response', 'responseType': 'text', 'params': new HttpParams().set('myParam', 123)});
+        // Listening to the http progres, for exmaple by image upload
+        // return this.http.post('https://dummyjson.com/test', servers, {'reportProgress': true });
+
+        const headers = new HttpHeaders({ 'Content-Type': 'application/json' })
+        return this.http.post('https://dummyjson.com/test', servers, { 'observe': 'events', 'responseType': 'json', 'headers': new HttpHeaders().set('Test', 'Bence') });
     }
 
     getServers() {

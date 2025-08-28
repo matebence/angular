@@ -3,9 +3,9 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { ServerService } from './server.service';
-import { AuthInterceptor } from './auth.interceptor';
+import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -13,10 +13,12 @@ import { AuthInterceptor } from './auth.interceptor';
   ],
   imports: [
     BrowserModule,
+    FormsModule,
     AppRoutingModule,
-    HttpClientModule // its required for making http calls
+    HttpClientModule,
+    BrowserAnimationsModule
   ],
-  providers: [ServerService, {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ServerService } from './server.service';
+import { HttpEvent, HttpEventType } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -40,6 +41,12 @@ export class AppComponent {
     this.serverService.storeServers(this.servers)
     .subscribe((response) => {
       console.log(response);
+    });
+    this.serverService.storeServersAsText(this.servers)
+    .subscribe((response: HttpEvent<Object>) => {
+      // With this we can now act on different events like on image upload and so on ...
+      console.log(response);
+      console.log(response.type === HttpEventType.Sent);
     });
   }
 

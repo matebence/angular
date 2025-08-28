@@ -820,6 +820,12 @@ export class ServerService {
             })
         );
     }
+
+    // With this config we are able to get back not only the reponse body byt status code headers and so on
+    storeServersAsText(servers: any[]) {
+        const headers = new HttpHeaders({ 'Content-Type': 'application/json' })
+        return this.http.post('https://dummyjson.com/test', servers, { 'observe': 'response', 'responseType': 'text' });
+    }
 }
 ```
 
@@ -1067,4 +1073,318 @@ AOT is a feature of Angular where the Angular HTML templates and TypeScript code
 
 ```sh
 ng build --prod --aot
+```
+
+
+**Angular Universal - Server side rendering**
+
+With Angular universal we are able to generate a real HTML so our SPA is compatible also with SSO like Google. This procedure will use expressJS for rendering our Angular APP.
+https://angular.dev/guide/ssr
+
+**Angular Animations**
+
+```sh
+npm install @angular/platform-browser
+```
+
+```ts
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    FormsModule,
+    AppRoutingModule,
+    HttpClientModule,
+    BrowserAnimationsModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+```
+
+**State management - Redux - ngrx**
+
+What is Application state - (List when application refreshed) - Every data what we have in our services like data from backend, authentication etc ...
+
+Components -> Services -> Actions > Reducers -> Store (Application state)
+
+```sh
+# With Angular 16 and lower
+npm install @ngrx/store@latest --legacy-peer-deps
+# With Angular 17
+ng add @ngrx/store
+```
+
+When we set the `initialState`its the whole application state not just our data from backend. We can split them up in multiple reducers but then we have to bundle it together to one appState in the appModule.
+```ts
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    HttpClientModule,
+    AppRoutingModule,
+    SharedModule,
+    ShoppingListModule,
+    AuthModule,
+    CoreModule,
+    StoreModule.forRoot(reducers),
+    EffectsModule.forRoot([AuthEffects])
+  ],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+```
+
+```ts
+export interface AppState {
+  shoppingList: fromShoppingList.State,
+  auth: fromAuth.State
+}
+
+export const reducers: ActionReducerMap<AppState> = {
+  shoppingList: fromShoppingList.shoppingListReducer,
+  auth: fromAuth.authReducer
+};
+```
+
+In NgRx, Effects are used to handle side effects—operations that are not directly related to state management, such as HTTP requests, navigation, logging, or interacting with external APIs. Effects allow you to interact with the outside world (like fetching data from a server) and then dispatch actions to update the store with the results.
+
+What switchMap Does?
+- When you're working with streams (observables), switchMap:
+- Receives a value from the source observable.
+- Maps that value to a new inner observable (like an HTTP call).
+- Subscribes to the new inner observable.
+- If a new value comes in before the previous inner observable completes, it cancels the previous one and switches to the new one.
+
+```sh
+# With Angular 16 and lower
+npm install @ngrx/effects@latest --legacy-peer-deps
+# With Angular 17
+ng add @ngrx/effects
+```
+Example:
+```ts
+// app.module.ts
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
+import { AppComponent } from './app.component';
+import { userReducer } from './reducers';
+import { UserEffects } from './user.effects';
+
+@NgModule({
+  declarations: [AppComponent],
+  imports: [
+    BrowserModule,
+    StoreModule.forRoot({ users: userReducer }),
+    EffectsModule.forRoot([UserEffects]), // Register the effects
+  ],
+  providers: [],
+  bootstrap: [AppComponent],
+})
+export class AppModule {}
+
+// actions.ts
+import { createAction, props } from '@ngrx/store';
+import { User } from './user.model';
+
+export const loadUsers = createAction('[User] Load Users');
+export const loadUsersSuccess = createAction(
+  '[User] Load Users Success',
+  props<{ users: User[] }>()
+);
+export const loadUsersFailure = createAction(
+  '[User] Load Users Failure',
+  props<{ error: any }>()
+);
+
+// user.effects.ts
+import { Injectable } from '@angular/core';
+import { Actions, ofType, createEffect } from '@ngrx/effects';
+import { Store } from '@ngrx/store';
+import { EMPTY } from 'rxjs';
+import { switchMap, map, catchError } from 'rxjs/operators';
+import { UserService } from './user.service';
+import { loadUsers, loadUsersSuccess, loadUsersFailure } from './actions';
+
+@Injectable()
+export class UserEffects {
+  constructor(
+    private actions$: Actions,
+    private userService: UserService // Service to make API call
+  ) {}
+
+  loadUsers$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(loadUsers), // Listen for the loadUsers action
+      switchMap(() => {
+        // Perform the HTTP call when the action is triggered
+        return this.userService.getUsers().pipe(
+          map((users) => loadUsersSuccess({ users })), // Dispatch success action with users
+          catchError((error) => [loadUsersFailure({ error })]) // Dispatch failure action in case of error
+        );
+      })
+    )
+  );
+}
+
+// user.component.ts
+import { Component, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { loadUsers } from './actions';
+import { Observable } from 'rxjs';
+import { User } from './user.model';
+
+@Component({
+  selector: 'app-user',
+  templateUrl: './user.component.html',
+})
+export class UserComponent implements OnInit {
+  users$: Observable<User[]>;
+
+  constructor(private store: Store<{ users: User[] }>) {
+    this.users$ = this.store.select('users');
+  }
+
+  ngOnInit() {
+    this.store.dispatch(loadUsers()); // Dispatch the action to load users
+  }
+}
+```
+
+In our case:
+```ts
+@Injectable()
+export class AuthEffects {
+  @Effect()
+  authSignup = this.actions$
+    .ofType(AuthActions.TRY_SIGNUP)
+    .map((action: AuthActions.TrySignup) => {
+      return action.payload;
+    })
+    .switchMap((authData: {username: string, password: string}) => {
+      return fromPromise(firebase.auth().createUserWithEmailAndPassword(authData.username, authData.password));
+    })
+    .switchMap(() => {
+      return fromPromise(firebase.auth().currentUser.getIdToken());
+    })
+    .mergeMap((token: string) => {
+      return [
+        {
+          type: AuthActions.SIGNUP
+        },
+        {
+          type: AuthActions.SET_TOKEN,
+          payload: token
+        }
+      ];
+    });
+
+  @Effect()
+  authSignin = this.actions$
+    .ofType(AuthActions.TRY_SIGNIN)
+    .map((action: AuthActions.TrySignup) => {
+      return action.payload;
+    })
+    .switchMap((authData: {username: string, password: string}) => {
+      return fromPromise(firebase.auth().signInWithEmailAndPassword(authData.username, authData.password));
+    })
+    .switchMap(() => {
+      return fromPromise(firebase.auth().currentUser.getIdToken());
+    })
+    .mergeMap((token: string) => {
+      this.router.navigate(['/']);
+      return [
+        {
+          type: AuthActions.SIGNIN
+        },
+        {
+          type: AuthActions.SET_TOKEN,
+          payload: token
+        }
+      ];
+    });
+
+  @Effect({dispatch: false})
+  authLogout = this.actions$
+    .ofType(AuthActions.LOGOUT)
+    .do(() => {
+      this.router.navigate(['/']);
+    });
+
+  constructor(private actions$: Actions, private router: Router) {
+  }
+}
+```
+
+With help of ngrx we can also catch every route change. We also have to install Redux devtools
+
+```sh
+# With Angular 16 and lower
+npm install @ngrx/router-store@latest --legacy-peer-deps
+npm install @ngrx/store-devtools@latest --legacy-peer-deps
+# With Angular 17
+ng add @ngrx/router-store
+ng add @ngrx/store-devtools
+```
+
+```ts
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    HttpClientModule,
+    AppRoutingModule,
+    SharedModule,
+    ShoppingListModule,
+    AuthModule,
+    CoreModule,
+    StoreModule.forRoot(reducers),
+    EffectsModule.forRoot([AuthEffects]),
+    StoreRouterConnectingModule,
+    !environment.production ? StoreDevtoolsModule.instrument() : []
+  ],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+```
+
+What about state in lazy modules? For that we have to use the keyword `forFeature`
+
+```ts
+ @NgModule({
+  declarations: [                             
+    ListOfBookComponent,
+    BookEditComponent
+  ],
+  imports: [           
+    CommonModule,                      
+    FormsModule,
+    BooksRoutingModule,
+    StoreModule.forFeature('book', bookReducer)
+  ]        
+})
+export class BooksModule { }
+``` 
+
+
+**Making our Angular app to a PWA**
+
+```sh
+ng add @angular/pwa
+```
+
+**Unit Tests**
+
+Start the test
+```sh
+ng test
 ```
